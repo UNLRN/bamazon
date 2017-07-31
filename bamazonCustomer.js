@@ -1,38 +1,61 @@
-const db = require('./db.js');
 const customer = require('./models/customer.js');
 const inquirer = require('inquirer');
+const prettyjson = require('prettyjson');
 const validator = require('validator');
 
-
-
-inquirer.prompt([{
-		type: 'list',
-		name: 'id',
-		message: 'What is the ID of the product you would like to buy?',
-		choices: ids
-	},
-	{
-		type: 'input',
-		name: 'amount',
-		message: 'How many would you like?',
-		validate: function (value) {
-			if (validator.isNumeric(value)) {
-				return true;
+function customerRequest() {
+	customer.viewProducts()
+		.then((res) => {
+			console.log(prettyjson.render(res));
+			return res
+		})
+		.then((res) => {
+			const ids = res.map((id) => { return id.item_id.toString() });
+			inquirer.prompt([{
+				type: 'list',
+				name: 'id',
+				message: 'What is the ID of the product you would like to buy?',
+				choices: ids
+			},
+			{
+				type: 'input',
+				name: 'amount',
+				message: 'How many would you like?',
+				validate: function (value) {
+					if (validator.isNumeric(value)) {
+						return true;
+					}
+					return 'Please enter a valid number'
+				}
 			}
-			return 'Please enter a valid number'
-		}
-	}
-]).then(function (answers) {
-	db.query(`SELECT stock_quantity, price FROM products WHERE item_id = ${answers.id}`, function (err, results, fields) {
-		if (results[0].stock_quantity < answers.amount) {
-			console.log(`Insufficient quantity!`);
+			]).then((answers) => {
+				customer.purchaseProduct(answers.id, answers.amount)
+					.then((res) => {
+						console.log(res)
+						askCustomer()
+					})
+					.catch((err) => {
+						console.log("Error: " + err)
+					})
+
+			})
+		})
+}
+
+function askCustomer() {
+	inquirer.prompt([{
+		type: 'confirm',
+		name: 'askAgain',
+		message: 'Would you like to make a purchase?',
+		default: true,
+	}]).then((answers) => {
+		if (!answers.askAgain) {
+			process.exit();
 		} else {
-			db.query(`UPDATE products SET stock_quantity = ${answers.id - results[0].stock_quantity} WHERE item_id = ${answers.id}`)
-			console.log(`Your total is ${results[0].price * answers.amount}`)
+			customerRequest()
 		}
-
 	})
-})
+}
 
-		db.end();
-		process.exit();
+askCustomer();
+
