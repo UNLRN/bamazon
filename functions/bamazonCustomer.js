@@ -1,16 +1,22 @@
-const customer = require('./models/customer.js');
+const customer = require('../models/customer.js');
 const inquirer = require('inquirer');
-const prettyjson = require('prettyjson');
+const Table = require('easy-table');
 const validator = require('validator');
 
 function customerRequest() {
 	customer.viewProducts()
 		.then((res) => {
-			console.log(prettyjson.render(res));
-			return res
-		})
-		.then((res) => {
+			let t = new Table
+			res.forEach((item) => {
+				t.cell('Product ID', item.item_id)
+				t.cell('Product Name', item.product_name)
+				t.cell('Price', item.price)
+				t.newRow()
+			})
+			console.log(t.toString());
+			
 			const ids = res.map((id) => { return id.item_id.toString() });
+			
 			inquirer.prompt([{
 				type: 'list',
 				name: 'id',
@@ -34,10 +40,7 @@ function customerRequest() {
 						console.log(res)
 						askCustomer()
 					})
-					.catch((err) => {
-						console.log("Error: " + err)
-					})
-
+					.catch((err) => console.log(err))
 			})
 		})
 }
@@ -46,7 +49,7 @@ function askCustomer() {
 	inquirer.prompt([{
 		type: 'confirm',
 		name: 'askAgain',
-		message: 'Would you like to make a purchase?',
+		message: 'Would you like to do customer things?',
 		default: true,
 	}]).then((answers) => {
 		if (!answers.askAgain) {
@@ -57,5 +60,6 @@ function askCustomer() {
 	})
 }
 
-askCustomer();
+module.exports.askCustomer = askCustomer;
+module.exports.customerRequest = customerRequest;
 

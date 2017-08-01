@@ -20,7 +20,6 @@
     "easy-table": "^1.1.0",
     "inquirer": "3.2.1",
     "mysql2": "1.3.6",
-    "prettyjson": "^1.2.1",
     "validator": "8.0.0"
   }
 }

@@ -1,6 +1,6 @@
-const manager = require('./models/manager.js');
+const manager = require('../models/manager.js');
 const inquirer = require('inquirer');
-const prettyjson = require('prettyjson');
+const Table = require('easy-table');
 const validator = require('validator');
 
 function managerRequest() {
@@ -19,26 +19,47 @@ function managerRequest() {
 			case "View Products":
 				manager.viewProducts()
 					.then((res) => {
-						console.log(prettyjson.render(res))
+						let t = new Table
+						res.forEach((item) => {
+							t.cell('Product ID', item.item_id)
+							t.cell('Product Name', item.product_name)
+							t.cell('Price', item.price)
+							t.cell('Stock Quantity', item.stock_quantity)
+							t.newRow()
+						})
+						console.log(t.toString());
 						askManager();
 					})
-					.catch((res) => console.log(res))
+					.catch((err) => console.log(err))
 				break;
 			case "View Low Inventory":
 				manager.viewLowInventory()
 					.then((res) => {
-						console.log(prettyjson.render(res))
+						let t = new Table
+						res.forEach((item) => {
+							t.cell('Product ID', item.item_id)
+							t.cell('Product Name', item.product_name)
+							t.cell('Price', item.price)
+							t.cell('Stock Quantity', item.stock_quantity)
+							t.newRow()
+						})
+						console.log(t.toString());
 						askManager();
 					})
-					.catch((res) => console.log(res))
+					.catch((err) => console.log(err))
 				break;
 			case "Add Inventory":
 				manager.viewProducts()
 					.then((res) => {
-						console.log(prettyjson.render(res));
-						return res
-					})
-					.then((res) => {
+						let t = new Table
+						res.forEach((item) => {
+							t.cell('Product ID', item.item_id)
+							t.cell('Product Name', item.product_name)
+							t.cell('Price', item.price)
+							t.cell('Stock Quantity', item.stock_quantity)
+							t.newRow()
+						})
+						console.log(t.toString());
 						const ids = res.map((id) => { return id.item_id.toString() });
 						inquirer.prompt([
 							{
@@ -64,7 +85,7 @@ function managerRequest() {
 									console.log(`Inventory has been updated to ${res[1][0].stock_quantity}`)
 									askManager();
 								})
-								.catch((res) => console.log(res))
+								.catch((err) => console.log(err))
 						})
 					})
 				break;
@@ -112,6 +133,7 @@ function managerRequest() {
 									console.log(`Product Added!`)
 									askManager();
 								})
+								.catch((err) => console.log(err));
 						})
 					})
 				break;
@@ -137,4 +159,5 @@ function askManager() {
 	})
 }
 
-askManager();
+module.exports.askManager = askManager;
+module.exports.managerRequest = managerRequest;
