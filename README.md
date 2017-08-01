@@ -1,7 +1,7 @@
 # bamazon
 
 
-Nodejs storefront that utilizes inquirer.js, easy-table.js, validator.js and mysql2. There are three routes that can be taken with actions specific to the route.
+Node.js storefront that utilizes inquirer.js, easy-table.js, validator.js and mysql2. There are three routes that can be taken with actions specific to the route.
 
 ### Customer
 * View Products
